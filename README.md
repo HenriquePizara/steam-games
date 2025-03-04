@@ -45,7 +45,7 @@ Este projeto é um dashboard interativo para análise de jogos da plataforma Ste
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/HenriquePizara/bi-steam-games.git
+   git clone https://github.com/HenriquePizara/steam-games.git
    cd bi-steam-games
 2. **Crie um ambiente virtual (opcional, mas recomendado)**
    ```bash
