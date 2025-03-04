@@ -56,4 +56,5 @@ Este projeto é um dashboard interativo para análise de jogos da plataforma Ste
    pip install -r requirements.txt
 4. **Execute o projeto:**
    ```bash
+   cd src
    streamlit run viewer.py
