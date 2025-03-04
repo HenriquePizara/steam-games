@@ -1,4 +1,3 @@
-﻿# bi-steam-games
 # BI STEAM GAMES
 
 Este projeto é um dashboard interativo para análise de jogos da plataforma Steam. Ele permite visualizar métricas como taxa de aceitação, reviews positivos e negativos, e outras informações relevantes sobre os jogos. O dashboard foi desenvolvido usando **Streamlit** e **Plotly** para visualizações interativas, e os dados são armazenados em um banco de dados SQLite.
