@@ -11,7 +11,7 @@ st.set_page_config(page_title="BI STEAM GAMES", layout="wide")
 
 # Menu lateral
 st.sidebar.title("Menu")
-opcao = st.sidebar.radio("Selecione o Dashboard", ["Analise Games"])
+opcao = st.sidebar.radio("Selecione o Dashboard", ["Taxa de Aceitação","Preço vs. Aceitação"])
 
 # Função para carregar e consolidar as bases de vendas
 @st.cache_data
@@ -130,7 +130,75 @@ def dashboard_games():
     # Exibir tabela com os top 15 jogos
     st.write("Dados dos Top 15 Jogos:")
     st.dataframe(top_15_jogos[['jogo', 'desenvolvedor', 'taxa_aceitacao', 'total_reviews', 'total_positivo', 'total_negativo']])
-
-# Navegação entre os dashboards
-if opcao == "Analise Games":
+def dashboard_preco_vs_aceitacao():
+    st.title("Análise: Preço vs. Taxa de Aceitação")
+    
+    base = carrega_dados()
+    
+    # --- Filtros (reutilizáveis) ---
+    st.sidebar.header("Filtros")
+    desenvolvedores = base['desenvolvedor'].unique()
+    filtro_desenvolvedor = st.sidebar.multiselect(
+        "Selecione o Desenvolvedor",
+        options=desenvolvedores,
+        key="filter_desenvolvedor_preco"
+    )
+    
+    # Aplicar filtros
+    base_filtrada = base.copy()
+    if filtro_desenvolvedor:
+        base_filtrada = base_filtrada[base_filtrada['desenvolvedor'].isin(filtro_desenvolvedor)]
+    
+    mostrar_filtros_aplicados(filtro_desenvolvedor)
+    
+    # --- Gráfico de Dispersão (Preço x Taxa de Aceitação) ---
+    st.header("Relação entre Preço e Satisfação dos Jogos")
+    
+    fig = px.scatter(
+        base_filtrada,
+        x='price_initial_usd',
+        y='taxa_aceitacao',
+        color='desenvolvedor',
+        hover_name='jogo',
+        size='total_reviews',
+        labels={
+            'price_initial_usd': 'Preço Inicial (USD)',
+            'taxa_aceitacao': 'Taxa de Aceitação (%)',
+            'desenvolvedor': 'Desenvolvedor'
+        },
+        title="Preço vs. Taxa de Aceitação"
+    )
+    
+    # Linha de tendência para mostrar correlação
+    fig.update_traces(
+        marker=dict(line=dict(width=1, color='DarkSlateGrey')),
+        selector=dict(mode='markers')
+    )
+    fig.add_hline(y=base_filtrada['taxa_aceitacao'].mean(), line_dash="dash", line_color="red")
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # --- Análise Estatística ---
+    st.subheader("Estatísticas")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.metric(
+            label="📉 Correlação (Preço x Aceitação)",
+            value=f"{base_filtrada['price_initial_usd'].corr(base_filtrada['taxa_aceitacao']):.2f}",
+            help="Valor próximo de 0 = sem correlação, 1 = correlação positiva, -1 = negativa"
+        )
+    
+    with col2:
+        st.metric(
+            label="💵 Preço Médio dos Jogos",
+            value=f"${base_filtrada['price_initial_usd'].mean():.2f}"
+        )
+    
+    # Tabela com dados brutos
+    st.write("Dados Detalhados:")
+    st.dataframe(base_filtrada[['jogo', 'desenvolvedor', 'price_initial_usd', 'taxa_aceitacao']])
+if opcao == "Taxa de Aceitação":
     dashboard_games()
+elif opcao == "Preço vs. Aceitação":
+    dashboard_preco_vs_aceitacao()
